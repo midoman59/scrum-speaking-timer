@@ -90,6 +90,20 @@ describe('PersistenceService (S-E2-03)', () => {
     expect(service.backupLost()).toBeTrue();
   });
 
+  it('M-A : si l\'écriture de la copie échoue, la perte n\'est pas signalée', () => {
+    const [a, b, c, d] = ['{brut A', '{brut B', '{brut C', '{brut D'];
+    for (const raw of [a, b, c]) {
+      memory.data.set(STORAGE_KEY, raw);
+      service.load();
+    }
+    memory.writeFailure = 'STORAGE_QUOTA';
+    memory.data.set(STORAGE_KEY, d);
+    service.load();
+    // La copie n'a pas été remplacée : C reste en place, donc aucune perte à signaler.
+    expect(memory.data.get(BACKUP_KEYS[2])).toBe(c);
+    expect(service.backupLost()).toBeFalse();
+  });
+
   it('N-3 : une donnée déjà conservée ne déclenche pas de perte', () => {
     const [a, b, c] = ['{brut A', '{brut B', '{brut C'];
     for (const raw of [a, b, c, c, a]) {

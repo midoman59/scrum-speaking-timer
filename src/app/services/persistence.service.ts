@@ -79,9 +79,13 @@ export class PersistenceService {
       if (existing.value === raw) return;
       if (existing.value === null && free === null) free = key;
     }
-    if (free === null) this.backupLost.set(true);
     const target = free ?? BACKUP_KEYS[BACKUP_KEYS.length - 1];
     const written = this.storage.write(target, raw);
-    if (!written.ok) this.fail('unavailable');
+    if (!written.ok) {
+      this.fail('unavailable');
+      return;
+    }
+    // M-A : la perte n'est signalée qu'une fois la copie réellement remplacée.
+    if (free === null) this.backupLost.set(true);
   }
 }
