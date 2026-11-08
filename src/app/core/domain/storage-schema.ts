@@ -5,6 +5,8 @@ import { validateTeam } from './validation';
 
 export const STORAGE_KEY = 'scrum-timer:v1';
 export const BACKUP_KEY = 'scrum-timer:v1:backup';
+/** Emplacements supplémentaires pour les brutes illisibles suivantes (I-6, ADR-05). */
+export const BACKUP_KEYS = [BACKUP_KEY, 'scrum-timer:v1:backup-2', 'scrum-timer:v1:backup-3'] as const;
 
 export interface AppSettings {
   readonly soundEnabled: boolean;

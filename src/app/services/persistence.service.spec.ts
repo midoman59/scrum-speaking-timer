@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { STORAGE, StoragePort, StorageError } from '../core/ports/storage.port';
 import { Result, ok, err } from '../core/domain/result';
-import { BACKUP_KEY, STORAGE_KEY, emptyRoot } from '../core/domain/storage-schema';
+import { BACKUP_KEYS, BACKUP_KEY, STORAGE_KEY, emptyRoot } from '../core/domain/storage-schema';
 import { PersistenceService } from './persistence.service';
 
 // Stockage en mémoire, avec pannes simulées.
@@ -57,6 +57,29 @@ describe('PersistenceService (S-E2-03)', () => {
     memory.data.set(STORAGE_KEY, '{nouveau brut');
     service.load();
     expect(memory.data.get(BACKUP_KEY)).toBe(raw);
+  });
+
+  it('I-6 : deux données illisibles successives sont conservées, sans recopie de la même donnée', () => {
+    const first = '{premier brut';
+    const second = '{second brut';
+    memory.data.set(STORAGE_KEY, first);
+    service.load();
+    // Une nouvelle équipe remplace la clé principale, puis une seconde corruption survient.
+    memory.data.set(STORAGE_KEY, JSON.stringify(emptyRoot()));
+    service.load();
+    memory.data.set(STORAGE_KEY, second);
+    service.load();
+    service.load();
+    expect(memory.data.get(BACKUP_KEYS[0])).toBe(first);
+    expect(memory.data.get(BACKUP_KEYS[1])).toBe(second);
+    expect(memory.data.get(BACKUP_KEYS[2])).toBeUndefined();
+  });
+
+  it('I-6 : un échec d\'écriture de la sauvegarde est signalé (santé unavailable)', () => {
+    memory.writeFailure = 'STORAGE_UNAVAILABLE';
+    memory.data.set(STORAGE_KEY, '{brut');
+    service.load();
+    expect(service.health()).toBe('unavailable');
   });
 
   it('critère 4 : QuotaExceeded renvoie STORAGE_QUOTA, santé degraded, aucune exception', () => {

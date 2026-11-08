@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Result } from '../core/domain/result';
-import { BACKUP_KEY, STORAGE_KEY, StoredRootV1, emptyRoot, parseStoredRoot } from '../core/domain/storage-schema';
+import { BACKUP_KEYS, STORAGE_KEY, StoredRootV1, emptyRoot, parseStoredRoot } from '../core/domain/storage-schema';
 import { STORAGE, StorageError } from '../core/ports/storage.port';
 
 export type StorageHealth = 'ok' | 'degraded' | 'unavailable';
@@ -45,11 +45,24 @@ export class PersistenceService {
     return written;
   }
 
-  /** Copie le brut une seule fois : une sauvegarde existante n'est jamais écrasée. */
+  /**
+   * Garde le brut illisible (ADR-05, I-6) : une donnée déjà conservée n'est pas recopiée, et une sauvegarde
+   * existante n'est jamais écrasée. La première case libre reçoit le brut ; si toutes sont prises, la dernière
+   * est remplacée. Un échec d'écriture ou de lecture passe la santé à unavailable (pas de perte silencieuse).
+   */
   private keepBackup(raw: string): void {
-    const existing = this.storage.read(BACKUP_KEY);
-    if (existing.ok && existing.value === null) {
-      this.storage.write(BACKUP_KEY, raw);
+    let free: string | null = null;
+    for (const key of BACKUP_KEYS) {
+      const existing = this.storage.read(key);
+      if (!existing.ok) {
+        this.health.set('unavailable');
+        return;
+      }
+      if (existing.value === raw) return;
+      if (existing.value === null && free === null) free = key;
     }
+    const target = free ?? BACKUP_KEYS[BACKUP_KEYS.length - 1];
+    const written = this.storage.write(target, raw);
+    if (!written.ok) this.health.set('unavailable');
   }
 }
