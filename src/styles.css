@@ -1,0 +1,52 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f8fafc;
+  --fg: #0f172a;
+  --accent: #1e3a8a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f172a;
+    --fg: #f1f5f9;
+    --accent: #93c5fd;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0f172a;
+  --fg: #f1f5f9;
+  --accent: #93c5fd;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+h1 { margin: 0; font-size: 1.5rem; }
+h2 { margin: .5rem 0 0; font-size: 1.1rem; }
+
+button {
+  padding: .5rem 1rem;
+  font: inherit;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+button.ghost {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
