@@ -1,52 +1,192 @@
+/* Jetons de DESIGN.md (sections 2.2, 4, 5). Aucune ressource externe (NFR-8). */
+
 :root {
   color-scheme: light dark;
-  --bg: #f8fafc;
-  --fg: #0f172a;
-  --accent: #1e3a8a;
+
+  /* Couleurs, mode clair */
+  --color-bg: #FFFFFF;
+  --color-surface: #F5F7FA;
+  --color-surface-hover: #EDF2F7;
+  --color-text: #1A202C;
+  --color-text-muted: #4A5568;
+  --color-border: #6B7280;
+  --color-border-subtle: #CBD5E0;
+  --color-primary: #4338CA;
+  --color-primary-hover: #3730A3;
+  --color-on-primary: #FFFFFF;
+  --color-primary-soft: #E0E7FF;
+  --color-on-primary-soft: #1A202C;
+  --color-secondary: #0F766E;
+  --color-secondary-hover: #115E59;
+  --color-on-secondary: #FFFFFF;
+  --color-success: #276749;
+  --color-success-soft: #F0FFF4;
+  --color-warning: #92400E;
+  --color-warning-soft: #FFFBEB;
+  --color-danger: #C53030;
+  --color-danger-hover: #9B2C2C;
+  --color-on-danger: #FFFFFF;
+  --color-danger-soft: #FFF5F5;
+  --color-focus: #3730A3;
+  --color-disabled-bg: #E5E7EB;
+  --color-disabled-text: #6B7280;
+
+  /* Typographie (DESIGN.md 4.1, 4.2) */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-timer: 4rem;
+  --text-timer-sm: 2rem;
+
+  /* Espacements (DESIGN.md 5.1) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* Cibles, focus, rayons, ombres (DESIGN.md 5.2, 5.3) */
+  --target-min: 44px;
+  --focus-width: 3px;
+  --focus-offset: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.08);
+  --shadow-md: 0 4px 12px rgba(17, 24, 39, 0.12);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0f172a;
-    --fg: #f1f5f9;
-    --accent: #93c5fd;
+    --color-bg: #111827;
+    --color-surface: #1F2937;
+    --color-surface-hover: #374151;
+    --color-text: #F3F4F6;
+    --color-text-muted: #B0B8C4;
+    --color-border: #9CA3AF;
+    --color-border-subtle: #374151;
+    --color-primary: #A5B4FC;
+    --color-primary-hover: #C7D2FE;
+    --color-on-primary: #1E1B4B;
+    --color-primary-soft: #312E81;
+    --color-on-primary-soft: #F3F4F6;
+    --color-secondary: #5EEAD4;
+    --color-secondary-hover: #99F6E4;
+    --color-on-secondary: #042F2E;
+    --color-success: #4ADE80;
+    --color-success-soft: #14532D;
+    --color-warning: #FCD34D;
+    --color-warning-soft: #2A2208;
+    --color-danger: #F87171;
+    --color-danger-hover: #FCA5A5;
+    --color-on-danger: #111827;
+    --color-danger-soft: #3B0D0D;
+    --color-focus: #C7D2FE;
+    --color-disabled-bg: #374151;
+    --color-disabled-text: #9CA3AF;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
   }
 }
 
 :root[data-theme="dark"] {
-  --bg: #0f172a;
-  --fg: #f1f5f9;
-  --accent: #93c5fd;
+  --color-bg: #111827;
+  --color-surface: #1F2937;
+  --color-surface-hover: #374151;
+  --color-text: #F3F4F6;
+  --color-text-muted: #B0B8C4;
+  --color-border: #9CA3AF;
+  --color-border-subtle: #374151;
+  --color-primary: #A5B4FC;
+  --color-primary-hover: #C7D2FE;
+  --color-on-primary: #1E1B4B;
+  --color-primary-soft: #312E81;
+  --color-on-primary-soft: #F3F4F6;
+  --color-secondary: #5EEAD4;
+  --color-secondary-hover: #99F6E4;
+  --color-on-secondary: #042F2E;
+  --color-success: #4ADE80;
+  --color-success-soft: #14532D;
+  --color-warning: #FCD34D;
+  --color-warning-soft: #2A2208;
+  --color-danger: #F87171;
+  --color-danger-hover: #FCA5A5;
+  --color-on-danger: #111827;
+  --color-danger-soft: #3B0D0D;
+  --color-focus: #C7D2FE;
+  --color-disabled-bg: #374151;
+  --color-disabled-text: #9CA3AF;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
 }
 
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
-h1 { margin: 0; font-size: 1.5rem; }
-h2 { margin: .5rem 0 0; font-size: 1.1rem; }
+/* Focus visible sur tout élément interactif (DESIGN.md 6.1). */
+:focus-visible {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: var(--focus-offset);
+}
+
+/* Réduction des mouvements (NFR-16) : appliqué par S-E1-07, base posée ici. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
+}
+
+h1 { margin: 0 0 var(--space-4); font-size: var(--text-2xl); line-height: 1.2; font-weight: 700; }
+h2 { margin: 0 0 var(--space-3); font-size: var(--text-xl); line-height: 1.3; font-weight: 700; }
 
 button {
-  padding: .5rem 1rem;
+  min-height: var(--target-min);
+  padding: 0 var(--space-5);
   font: inherit;
   font-weight: 600;
-  border: none;
-  border-radius: 6px;
-  background: var(--accent);
-  color: #fff;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
   cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+button:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
 }
 
 button.ghost {
   background: transparent;
-  color: var(--accent);
-  border: 1px solid var(--accent);
+  color: var(--color-primary);
+}
+
+button.ghost:hover:not(:disabled) {
+  background: var(--color-surface-hover);
+  color: var(--color-primary);
 }
 
 button:disabled {
-  opacity: .5;
+  background: var(--color-disabled-bg);
+  border-color: var(--color-disabled-bg);
+  color: var(--color-disabled-text);
   cursor: not-allowed;
 }
