@@ -205,7 +205,8 @@ export class TeamEditorPage {
     return code ? messageFor(code, { count: this.members().length }) : '';
   }
 
-  addMember(): void {
+  /** Ajoute le prénom saisi. Renvoie false si le prénom est refusé (erreur affichée, focus sur le champ). */
+  addMember(): boolean {
     const control = this.form.controls.member;
     control.markAsTouched();
     const result = addMemberToDraft(
@@ -220,7 +221,7 @@ export class TeamEditorPage {
     );
     if (!result.ok) {
       this.focusField('member-name');
-      return;
+      return false;
     }
     this.members.set([...result.value.members]);
     this.syncMemberLimit();
@@ -228,6 +229,7 @@ export class TeamEditorPage {
     control.markAsUntouched();
     this.form.controls.duration.updateValueAndValidity();
     this.focusField('member-name');
+    return true;
   }
 
   /** Au 15e Membre, la saisie est désactivée (S-E2-07). */
@@ -241,6 +243,8 @@ export class TeamEditorPage {
 
   onSubmit(): void {
     this.submitted.set(true);
+    // I-5 : un prénom saisi mais non ajouté n'est pas perdu : il est ajouté, ou bloque l'enregistrement.
+    if (this.form.controls.member.value.trim() !== '' && !this.addMember()) return;
     if (!this.canSave()) {
       this.focusFirstInvalid();
       return;

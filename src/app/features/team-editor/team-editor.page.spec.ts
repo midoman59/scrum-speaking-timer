@@ -124,6 +124,44 @@ describe('Écran Équipe, création (S-E2-05)', () => {
     expect(document.activeElement).toBe(el(harness, '#member-name'));
   });
 
+  describe('I-5 : prénom saisi sans « Ajouter »', () => {
+    function fillTwoMembers(harness: RouterTestingHarness): void {
+      type(harness, '#team-name', 'Équipe Alpha');
+      type(harness, '#member-name', 'Camille');
+      pressEnter(harness, '#member-name');
+      type(harness, '#member-name', 'Thomas');
+      pressEnter(harness, '#member-name');
+    }
+
+    it('un prénom valide saisi puis « Enregistrer » est ajouté avant la sauvegarde', async () => {
+      const harness = await openEditor();
+      fillTwoMembers(harness);
+      type(harness, '#member-name', 'Léa');
+      saveButton(harness).click();
+      await harness.fixture.whenStable();
+      harness.fixture.detectChanges();
+
+      const stored = JSON.parse(memory.data.get(STORAGE_KEY) ?? '{}');
+      expect(stored.team.members.map((m: { name: string }) => m.name)).toEqual(['Camille', 'Thomas', 'Léa']);
+    });
+
+    it('un prénom invalide saisi bloque l\'enregistrement, affiche l\'erreur et garde le focus', async () => {
+      const harness = await openEditor();
+      fillTwoMembers(harness);
+      type(harness, '#member-name', 'Jean3');
+      saveButton(harness).click();
+      await harness.fixture.whenStable();
+      harness.fixture.detectChanges();
+
+      expect(memory.data.get(STORAGE_KEY)).toBeUndefined();
+      expect(TestBed.inject(Router).url).not.toBe('/preparation');
+      expect(harness.routeNativeElement!.textContent).toContain(
+        'Un prénom ne peut contenir que des lettres, espaces, traits d\'union et apostrophes.',
+      );
+      expect(document.activeElement).toBe(el(harness, '#member-name'));
+    });
+  });
+
   describe('S-E2-06 : remplacer l\'équipe existante', () => {
     function fillValidTeam(harness: RouterTestingHarness, name: string): void {
       type(harness, '#team-name', name);
