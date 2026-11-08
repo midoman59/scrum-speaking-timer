@@ -1,7 +1,8 @@
 // Règles de validation du domaine (PRD section 6). Un seul endroit, réutilisé par les formulaires,
 // le service et l'import (ADR-07).
+import { allocateEqual, allocationDelta } from './allocation';
 import { ValidationError } from './errors';
-import { Member } from './model';
+import { Member, TeamDraft } from './model';
 import { memberKey, normalizeMemberName, normalizeTeamName } from './normalize';
 import { Result } from './result';
 
@@ -57,4 +58,47 @@ export function validateDurationForMembers(durationSec: number, memberCount: num
     return [{ code: 'DURATION_PER_MEMBER_TOO_SHORT', field: 'duration', count: memberCount }];
   }
   return [];
+}
+
+/** Invariants d'équipe INV-01 à INV-10 (architecture 3.2). Toutes les erreurs, dans l'ordre. */
+export function validateTeam(draft: TeamDraft): ValidationError[] {
+  const errors: ValidationError[] = [...validateTeamName(draft.name)];
+  const count = draft.members.length;
+  const duration = draft.durationSec;
+
+  if (count < 2) errors.push({ code: 'MEMBER_COUNT_MIN', field: 'members' });
+  if (count > 15) errors.push({ code: 'MEMBER_COUNT_MAX', field: 'members' });
+
+  if (!Number.isInteger(duration) || duration % 60 !== 0) {
+    errors.push({ code: 'DURATION_NOT_INTEGER', field: 'duration' });
+  } else if (duration < 60) {
+    errors.push({ code: 'DURATION_TOO_SHORT', field: 'duration' });
+  } else if (duration > 7200) {
+    errors.push({ code: 'DURATION_TOO_LONG', field: 'duration' });
+  }
+
+  for (const member of draft.members) {
+    errors.push(...validateMemberName(member.name, draft.members, member.id));
+  }
+  errors.push(...validateDurationForMembers(duration, count));
+
+  const delta = allocationDelta(draft.members, duration);
+  if (draft.allocationMode === 'equal') {
+    const expected = allocateEqual(duration, count);
+    const differs = draft.members.some((member, index) => member.allocatedSec !== expected[index]);
+    if (delta !== 0 || differs) {
+      errors.push({ code: 'ALLOCATION_SUM_MISMATCH', field: 'allocation', deltaSec: delta });
+    }
+  } else {
+    if (delta !== 0) errors.push({ code: 'ALLOCATION_SUM_MISMATCH', field: 'allocation', deltaSec: delta });
+    for (const member of draft.members) {
+      if (member.allocatedSec < 30) {
+        errors.push({ code: 'ALLOCATION_TOO_SHORT', field: 'allocation', memberId: member.id });
+      }
+      if (member.allocatedSec > duration) {
+        errors.push({ code: 'ALLOCATION_TOO_LONG', field: 'allocation', memberId: member.id });
+      }
+    }
+  }
+  return errors;
 }
