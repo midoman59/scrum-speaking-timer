@@ -72,6 +72,26 @@ describe('Bandeau de stockage refusé (FR-25, B-1, N-1)', () => {
 
     expect(fixture.nativeElement.textContent).not.toContain(STORAGE_REFUSED_TEXT);
   });
+
+  it('I-A : bandeau B-1 fermé, une nouvelle écriture en échec le fait revenir', () => {
+    memory.write = () => err('STORAGE_QUOTA');
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    const teams = TestBed.inject(TeamService);
+
+    teams.commit(VALID_DRAFT);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain(STORAGE_REFUSED_TEXT);
+
+    const closeButton = fixture.nativeElement.querySelector('app-status-banner .close') as HTMLButtonElement;
+    closeButton.click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).not.toContain(STORAGE_REFUSED_TEXT);
+
+    teams.commit(VALID_DRAFT);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain(STORAGE_REFUSED_TEXT);
+  });
 });
 
 describe('Bandeau de données illisibles (S-E2-03, C-3)', () => {

@@ -1,6 +1,6 @@
 <main class="app-main">
   @if (showStorageRefused()) {
-    <app-status-banner variant="warning" (dismissed)="storageRefusedDismissed.set(true)">
+    <app-status-banner variant="warning" (dismissed)="dismissStorageRefused()">
       {{ storageRefusedMessage }}
     </app-status-banner>
   }

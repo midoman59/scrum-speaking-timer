@@ -27,12 +27,14 @@ export class PersistenceService {
   readonly dataIssue = signal<DataIssue>('none');
   /** Vrai quand une sauvegarde existante a été remplacée faute d'emplacement libre (N-3). */
   readonly backupLost = signal(false);
+  /** Nombre d'incidents de stockage depuis le démarrage (I-A) : chaque passage à une santé dégradée le compte. */
+  readonly incidents = signal(0);
 
   /** Charge la racine. Ne lève jamais d'exception : en cas d'échec, renvoie une racine vide. */
   load(): StoredRootV1 {
     const read = this.storage.read(STORAGE_KEY);
     if (!read.ok) {
-      this.health.set('unavailable');
+      this.fail('unavailable');
       return emptyRoot();
     }
     if (read.value === null) return emptyRoot();
@@ -51,8 +53,14 @@ export class PersistenceService {
       this.health.set('ok');
       return written;
     }
-    this.health.set(written.error === 'STORAGE_QUOTA' ? 'degraded' : 'unavailable');
+    this.fail(written.error === 'STORAGE_QUOTA' ? 'degraded' : 'unavailable');
     return written;
+  }
+
+  /** Passe la santé à un état dégradé et compte l'incident, pour que le bandeau B-1 revienne (I-A). */
+  private fail(health: Exclude<StorageHealth, 'ok'>): void {
+    this.health.set(health);
+    this.incidents.update((count) => count + 1);
   }
 
   /**
@@ -65,7 +73,7 @@ export class PersistenceService {
     for (const key of BACKUP_KEYS) {
       const existing = this.storage.read(key);
       if (!existing.ok) {
-        this.health.set('unavailable');
+        this.fail('unavailable');
         return;
       }
       if (existing.value === raw) return;
@@ -74,6 +82,6 @@ export class PersistenceService {
     if (free === null) this.backupLost.set(true);
     const target = free ?? BACKUP_KEYS[BACKUP_KEYS.length - 1];
     const written = this.storage.write(target, raw);
-    if (!written.ok) this.health.set('unavailable');
+    if (!written.ok) this.fail('unavailable');
   }
 }

@@ -34,9 +34,19 @@ export class App {
   );
 
   readonly storageRefusedMessage = STORAGE_REFUSED_MESSAGE;
-  readonly storageRefusedDismissed = signal(false);
-  /** Bandeau B-1 : tant que le stockage n'est pas sain, la Session continue en mémoire vive (FR-25). */
+  /** Nombre d'incidents de stockage au moment de la fermeture du bandeau B-1 (I-A). */
+  readonly storageRefusedDismissedAt = signal(0);
+  /**
+   * Bandeau B-1 : tant que le stockage n'est pas sain, la Session continue en mémoire vive (FR-25).
+   * Fermé, il revient à chaque nouvel incident de stockage (I-A).
+   */
   readonly showStorageRefused = computed(
-    () => this.persistence.health() !== 'ok' && !this.storageRefusedDismissed(),
+    () =>
+      this.persistence.health() !== 'ok' &&
+      this.persistence.incidents() > this.storageRefusedDismissedAt(),
   );
+
+  dismissStorageRefused(): void {
+    this.storageRefusedDismissedAt.set(this.persistence.incidents());
+  }
 }
