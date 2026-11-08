@@ -65,4 +65,25 @@ describe('Écran de préparation (S-E2-12)', () => {
       'Ajoutez au moins 2 membres pour lancer une session.',
     );
   });
+
+  it('critère 3 : le motif est placé sous le bouton, dans l\'ordre du document', async () => {
+    seedTeam(memory);
+    const service = TestBed.inject(TeamService);
+    const harness = await RouterTestingHarness.create('/preparation');
+    service.team.set({ ...sampleTeam(), members: [{ id: 'm1', name: 'Seul', allocatedSec: 900 }] });
+    harness.fixture.detectChanges();
+
+    const root = harness.routeNativeElement!;
+    const start = Array.from(root.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Démarrer la session'),
+    ) as HTMLButtonElement;
+    const actions = root.querySelector('.actions') as HTMLElement;
+    const help = root.querySelector('#start-help') as HTMLElement;
+
+    expect(help).not.toBeNull();
+    expect(actions.contains(start)).toBeTrue();
+    // Le motif suit le conteneur du bouton : il est affiché sous lui, et l'annonce vient après le bouton.
+    expect(actions.compareDocumentPosition(help) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(help.compareDocumentPosition(start) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+  });
 });

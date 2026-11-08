@@ -27,10 +27,6 @@ import { TeamService } from '../../services/team.service';
           }
         </ol>
 
-        @if (reason(); as text) {
-          <p id="start-help" class="help" role="status">{{ text }}</p>
-        }
-
         <div class="actions">
           <button
             type="button"
@@ -41,6 +37,10 @@ import { TeamService } from '../../services/team.service';
             Démarrer la session
           </button>
         </div>
+
+        @if (reason(); as text) {
+          <p id="start-help" class="help" role="status">{{ text }}</p>
+        }
 
         <p class="new-team"><a routerLink="/equipe">Nouvelle équipe</a></p>
       }
