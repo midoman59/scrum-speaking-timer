@@ -9,14 +9,17 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const target = resolve(process.argv[2] ?? join(root, 'dist', 'scrum-speaking-timer', 'browser'));
 
 const SCANNED = new Set(['.html', '.js', '.mjs', '.css', '.json', '.webmanifest', '.svg', '.txt']);
-// Identifiants de namespace et de schéma : ce ne sont pas des requêtes réseau.
-// Les fichiers du service worker d'Angular contiennent des liens de licence dans leurs commentaires : ce ne sont pas des requêtes.
+// Ces URLs ne sont jamais demandées par l'application : identifiants de namespace et de schéma,
+// liens de licence dans les commentaires du service worker, liens de documentation dans les messages
+// d'avertissement d'Angular. La vraie garde est la garde réseau E2E (e2e/network-guard.mjs).
 const ALLOWED_PREFIXES = [
   'http://www.w3.org/',
   'https://www.w3.org/',
   'http://json-schema.org/',
   'https://json-schema.org/',
   'https://angular.dev/license',
+  'https://angular.dev/best-practices/',
+  'https://angular.dev/errors',
   'https://github.com/angular/angular/',
 ];
 const URL_PATTERN = /https?:\/\/[^\s"'`<>)]+/g;
