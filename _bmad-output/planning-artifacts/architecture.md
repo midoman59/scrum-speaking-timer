@@ -1116,7 +1116,7 @@ Les risques R1 à R9 reprennent ceux du PRD. Les risques T1 à T8 sont technique
 | T4 | CSP en balise `meta` ignore certaines directives | Filet de sécurité partiel | Certaine | La garantie repose sur le test E2E et sur `check-privacy` |
 | T5 | Lighthouse a retiré ou renommé le score « Installable » | Critère NFR-1 non vérifiable | Moyenne | Vérifier les audits de la version figée ; remplacer le critère par les audits équivalents |
 | T6 | Mise à jour du service worker non testable de bout en bout en CI | Régression non détectée | Moyenne | Test manuel en pilote, deux builds successifs documentés |
-| T7 | Données d'une version plus récente après un rollback | Données écrasées | Faible | Sauvegarde dans les trois emplacements `…:backup*` avant tout remplacement (ADR-05, section 6.4) |
+| T7 | Données d'une version plus récente après un rollback | Données écrasées | Faible | Sauvegarde dans la première case libre parmi les trois emplacements `…:backup*` avant tout remplacement (ADR-05, section 6.4) |
 | T8 | Noms de caractères accentués décomposés (NFD) saisis sur macOS | Prénom refusé à tort | Moyenne | `normalize('NFC')` avant validation, marques `\p{M}` acceptées (INV-06) |
 | T9 | Régression d'horloge système pendant une Intervention | Temps faux | Faible | Garde de régression (ADR-06 point 4), journalisation |
 
