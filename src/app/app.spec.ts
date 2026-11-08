@@ -4,12 +4,17 @@ import { App } from './app';
 import { err } from './core/domain/result';
 import { STORAGE_KEY } from './core/domain/storage-schema';
 import { TeamDraft } from './core/domain/model';
+import { PersistenceService } from './services/persistence.service';
 import { TeamService } from './services/team.service';
 import { MemoryStorage, provideMemoryStorage } from './testing/memory-storage';
 
 // S-E2-03 critère 3 : le message FR-25 est affiché dans un bandeau au démarrage (PRD FR-25, B-2).
 const UNREADABLE_TEXT =
   'Les données enregistrées sont illisibles et ont été ignorées. Vous pouvez importer un fichier de sauvegarde.';
+
+// N-3 : perte d'une copie de sauvegarde (texte proposé, à valider par le PO : absent du PRD).
+const BACKUP_LOST_TEXT =
+  'Une donnée illisible précédente a été remplacée dans la sauvegarde et ne peut plus être récupérée.';
 
 // PRD FR-25 et EXPERIENCE.md B-1 : stockage refusé ou quota dépassé.
 const STORAGE_REFUSED_TEXT =
@@ -87,6 +92,19 @@ describe('Bandeau de données illisibles (S-E2-03, C-3)', () => {
     const banner = fixture.nativeElement.querySelector('app-status-banner') as HTMLElement | null;
     expect(banner).not.toBeNull();
     expect(banner!.textContent).toContain(UNREADABLE_TEXT);
+  });
+
+  it('N-3 : après quatre données illisibles, un bandeau signale la perte d\'une sauvegarde', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    const persistence = TestBed.inject(PersistenceService);
+    for (const raw of ['{brut A', '{brut B', '{brut C', '{brut D']) {
+      memory.data.set(STORAGE_KEY, raw);
+      persistence.load();
+    }
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain(BACKUP_LOST_TEXT);
   });
 
   it('n\'affiche aucun bandeau sans donnée illisible', () => {

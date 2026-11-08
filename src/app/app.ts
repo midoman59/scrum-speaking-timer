@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { StatusBannerComponent } from './features/shared/status-banner';
 import {
+  BACKUP_LOST_MESSAGE,
   PersistenceService,
   STORAGE_REFUSED_MESSAGE,
   UNREADABLE_DATA_MESSAGE,
@@ -23,6 +24,13 @@ export class App {
   readonly unreadableDismissed = signal(false);
   readonly showUnreadable = computed(
     () => this.persistence.dataIssue() === 'unreadable' && !this.unreadableDismissed(),
+  );
+
+  readonly backupLostMessage = BACKUP_LOST_MESSAGE;
+  readonly backupLostDismissed = signal(false);
+  /** N-3 : une sauvegarde a été remplacée faute d'emplacement, la perte est signalée. */
+  readonly showBackupLost = computed(
+    () => this.persistence.backupLost() && !this.backupLostDismissed(),
   );
 
   readonly storageRefusedMessage = STORAGE_REFUSED_MESSAGE;

@@ -47,7 +47,7 @@ describe('PersistenceService (S-E2-03)', () => {
     expect(service.load()).toEqual(root);
   });
 
-  it('critère 3 : contenu illisible copié une seule fois dans la sauvegarde, équipe vide, message', () => {
+  it('critère 3 : contenu illisible copié dans la sauvegarde, équipe vide, message, sans recopie', () => {
     const raw = JSON.stringify({ schemaVersion: 2, team: null, settings: { soundEnabled: true }, session: null });
     memory.data.set(STORAGE_KEY, raw);
     expect(service.load().team).toBeNull();
@@ -73,6 +73,30 @@ describe('PersistenceService (S-E2-03)', () => {
     expect(memory.data.get(BACKUP_KEYS[0])).toBe(first);
     expect(memory.data.get(BACKUP_KEYS[1])).toBe(second);
     expect(memory.data.get(BACKUP_KEYS[2])).toBeUndefined();
+  });
+
+  it('N-3 : quatre données illisibles, les trois copies ne sont pas écrasées sans signal (perte signalée)', () => {
+    const [a, b, c, d] = ['{brut A', '{brut B', '{brut C', '{brut D'];
+    for (const raw of [a, b, c]) {
+      memory.data.set(STORAGE_KEY, raw);
+      service.load();
+    }
+    expect(service.backupLost()).toBeFalse();
+
+    memory.data.set(STORAGE_KEY, d);
+    service.load();
+    // Politique ADR-05 : la dernière copie est remplacée, mais la perte doit être signalée.
+    expect(memory.data.get(BACKUP_KEYS[2])).toBe(d);
+    expect(service.backupLost()).toBeTrue();
+  });
+
+  it('N-3 : une donnée déjà conservée ne déclenche pas de perte', () => {
+    const [a, b, c] = ['{brut A', '{brut B', '{brut C'];
+    for (const raw of [a, b, c, c, a]) {
+      memory.data.set(STORAGE_KEY, raw);
+      service.load();
+    }
+    expect(service.backupLost()).toBeFalse();
   });
 
   it('I-6 : un échec d\'écriture de la sauvegarde est signalé (santé unavailable)', () => {

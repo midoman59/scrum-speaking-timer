@@ -9,5 +9,10 @@
       {{ unreadableMessage }}
     </app-status-banner>
   }
+  @if (showBackupLost()) {
+    <app-status-banner variant="warning" (dismissed)="backupLostDismissed.set(true)">
+      {{ backupLostMessage }}
+    </app-status-banner>
+  }
   <router-outlet />
 </main>
