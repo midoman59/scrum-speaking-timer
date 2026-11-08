@@ -92,6 +92,12 @@ Tenu par l'agent orchestrateur. Chaque étape indique l'agent qui a produit le l
 - I-B partiel : `epics-et-stories.md` réécrit mais non suivi par git (non commité) ; `architecture.md` non modifié pour les lignes 491 et 1050 (fichier porteur de modifications non commitées, réécriture v2 de Winston).
 - Contrôles de l'orchestrateur (relancés moi-même) : `ng test` 133 SUCCESS ✔ · e2e 18 passed ✔ (build et privacy validés par Amelia, à relancer avant publication).
 
+### Revue finale (reviewer neuf, après autorisation du client) : CHANGEMENTS DEMANDÉS
+- Livrable : [revue-finale-lots-1-2.md](./revue-finale-lots-1-2.md)
+- Code : I-A et M-A corrects, sans régression ; 133 tests SUCCESS ; e2e 18 passed.
+- Restent, documentaires uniquement : architecture.md l.1050 (« perte de la plus ancienne » : le code remplace la troisième copie), architecture.md l.824 et epics-et-stories.md l.586 (suppression ne concerne que `:backup`, il faut les trois clés), mineurs l.510, l.1119, l.1152 et dev-notes.md l.32.
+- Action proposée : corriger ces passages et commiter ; décision client demandée avant d'aller au-delà de la portée autorisée.
+
 ### BLOCAGE HUMAIN : trois tentatives épuisées sur la revue lots 1-2
 - Verdict de la troisième revue : CHANGEMENTS DEMANDÉS, seul reste ouvert I-B (documentation de la rotation à trois emplacements).
 - Options proposées au client :

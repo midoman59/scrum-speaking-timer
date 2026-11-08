@@ -583,7 +583,7 @@ Chaque FR et chaque NFR du PRD pointe vers au moins une story. Aucune FR n'est o
 - **Tests :** unitaire ; composant ; E2E de NFR-9 (clé absente après réinitialisation) dans S-E6-10.
 - **Critères d'acceptation :**
   1. Given E-2, When « Réinitialiser les données » est activé, Then D-5 s'ouvre avec « Effacer toutes les données de l'application sur cet appareil ? Cette action est définitive. » et les boutons « Effacer » et « Annuler », focus sur « Annuler ».
-  2. Given « Effacer », Then `scrum-timer:v1` et `scrum-timer:v1:backup` sont supprimées et l'écran Équipe vide s'affiche.
+  2. Given « Effacer », Then `scrum-timer:v1` et les trois clés `scrum-timer:v1:backup`, `scrum-timer:v1:backup-2`, `scrum-timer:v1:backup-3` sont supprimées et l'écran Équipe vide s'affiche.
   3. Given « Annuler » ou Échap, Then aucune donnée n'est supprimée.
   4. Given une Session en cours, Then le bouton n'est pas visible sur E-2 et le service renvoie `SESSION_IN_PROGRESS`.
 

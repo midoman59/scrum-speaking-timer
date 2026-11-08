@@ -507,7 +507,7 @@ Cas de lecture (`parseStoredRoot`) :
 | Cas | Comportement |
 |---|---|
 | Clé absente | Démarrage vide, pas de message |
-| JSON invalide, structure invalide, invariant violé | Copie dans `…:backup`, démarrage vide, message FR-25 : « Les données enregistrées sont illisibles et ont été ignorées. Vous pouvez importer un fichier de sauvegarde. » |
+| JSON invalide, structure invalide, invariant violé | Copie dans la première case libre des trois emplacements (`…:backup`, `…:backup-2`, `…:backup-3`), démarrage vide, message FR-25 : « Les données enregistrées sont illisibles et ont été ignorées. Vous pouvez importer un fichier de sauvegarde. » |
 | `schemaVersion` absent ou différent de 1 | Même traitement. Le message est le même, pour ne pas inventer de texte (voir annexe A, A10) |
 | Accès refusé ou stockage absent (`SecurityError`, `localStorage` nul) | Mémoire vive, bandeau FR-25 : « Vos données ne seront pas conservées après fermeture. Exportez votre équipe pour la sauvegarder. » |
 
@@ -821,7 +821,7 @@ Messages d'import (section 6.6 du PRD) : `FILE_TYPE` → « Choisissez un fichie
 // services/data-reset.service.ts
 @Injectable({ providedIn: 'root' })
 export class DataResetService {
-  /** FR-28. Supprime scrum-timer:v1 et :backup, réinitialise tous les signaux. Erreurs : SESSION_IN_PROGRESS, CONFIRMATION_REQUIRED. */
+  /** FR-28. Supprime scrum-timer:v1 et les trois clés de sauvegarde (:backup, :backup-2, :backup-3), réinitialise tous les signaux. Erreurs : SESSION_IN_PROGRESS, CONFIRMATION_REQUIRED. */
   resetAll(confirmed: boolean): Result<void, DomainErrorCode>;
 }
 ```
@@ -1047,7 +1047,7 @@ Effets sur le service worker : les navigateurs qui ont la version défectueuse t
 
 Rollback des données et compatibilité du schéma :
 
-- la version restaurée peut être plus ancienne que les données stockées. Si `schemaVersion` est supérieur à celui que l'application connaît, `parseStoredRoot` refuse les données, les copie dans `…:backup` et démarre vide, avec le message FR-25. Les données ne sont jamais écrasées sans sauvegarde, ou, après trois copies, avec signalement de la perte de la plus ancienne (ADR-05) ;
+- la version restaurée peut être plus ancienne que les données stockées. Si `schemaVersion` est supérieur à celui que l'application connaît, `parseStoredRoot` refuse les données, les copie dans la première case libre des trois emplacements et démarre vide, avec le message FR-25. Les données ne sont jamais écrasées sans sauvegarde ; à la quatrième donnée illisible, la troisième copie (`…:backup-3`) est remplacée et la perte est signalée (ADR-05) ;
 - un schéma persisté ne doit jamais changer sans migration (ADR-05, ADR-19) ;
 - le test de migration « v1 → version précédente refusée proprement » est au nombre des tests unitaires de `storage-schema.spec.ts`.
 
@@ -1116,7 +1116,7 @@ Les risques R1 à R9 reprennent ceux du PRD. Les risques T1 à T8 sont technique
 | T4 | CSP en balise `meta` ignore certaines directives | Filet de sécurité partiel | Certaine | La garantie repose sur le test E2E et sur `check-privacy` |
 | T5 | Lighthouse a retiré ou renommé le score « Installable » | Critère NFR-1 non vérifiable | Moyenne | Vérifier les audits de la version figée ; remplacer le critère par les audits équivalents |
 | T6 | Mise à jour du service worker non testable de bout en bout en CI | Régression non détectée | Moyenne | Test manuel en pilote, deux builds successifs documentés |
-| T7 | Données d'une version plus récente après un rollback | Données écrasées | Faible | Sauvegarde `…:backup` avant tout remplacement (ADR-05, section 6.4) |
+| T7 | Données d'une version plus récente après un rollback | Données écrasées | Faible | Sauvegarde dans les trois emplacements `…:backup*` avant tout remplacement (ADR-05, section 6.4) |
 | T8 | Noms de caractères accentués décomposés (NFD) saisis sur macOS | Prénom refusé à tort | Moyenne | `normalize('NFC')` avant validation, marques `\p{M}` acceptées (INV-06) |
 | T9 | Régression d'horloge système pendant une Intervention | Temps faux | Faible | Garde de régression (ADR-06 point 4), journalisation |
 
@@ -1149,7 +1149,7 @@ Les constats portent sur le PRD v2 (`prd.md`). « Action » indique ce qu'il fau
 | A19 | FR-15 : « si la Session n'a aucune Intervention, tous les Membres à 0 s ». FR-10 démarre toujours une Intervention, donc le cas ne se produit pas | Cas inatteignable, gardé comme garde-fou (le reducer renvoie 0 pour chaque Membre) | Retirer le cas, ou le marquer « garde-fou » |
 | A20 | Le PRD (section 8.2) prévoit Vitest. Le dépôt utilise Karma et Jasmine | Spike S0, avec repli (ADR-13) | Mettre la section 8.2 à jour après S0 |
 | A21 | Le PRD fixe Angular 20 sans tenir compte de la fin de support LTS (ADR-01) | Version figée en E1, montée planifiée avant E6 | Ajouter un point de contrôle de version dans le plan de release |
-| A22 | Le PRD ne définit pas la règle de restauration si le stockage contient une version inconnue (FR-25 ne vise que « illisibles ») | Données copiées dans `…:backup` avant de démarrer vide (ADR-05) | Étendre FR-25 au cas « version inconnue » |
+| A22 | Le PRD ne définit pas la règle de restauration si le stockage contient une version inconnue (FR-25 ne vise que « illisibles ») | Données copiées dans la première case libre des trois emplacements `…:backup*` avant de démarrer vide (ADR-05) | Étendre FR-25 au cas « version inconnue » |
 | A23 | UX (ux.md, étape 4) : « le chronomètre repart à la durée allouée restante ». Le PRD mesure un temps parlé et un temps restant | Affichage du temps restant (`allocated − spoken`), dérivé des horodatages. Pas de compte à rebours autonome | Préciser la formule dans ux.md (sans changer le fond) |
 | A24 | Le PRD décrit le « temps moyen par Membre » en mm:ss (FR-7), mais le bilan et la répartition utilisent aussi mm:ss avec des minutes pouvant dépasser 59 (120:00) | `formatMmSs` sans limite de minutes pour la répartition et le bilan ; `formatClock` (h:mm:ss au-delà de 59 min) pour le minuteur (FR-14) | Préciser les deux formats |
 | A25 | NFR-4 : nom du dépôt inconnu (`/<nom-du-depot>/`) | `APP_BASE_HREF` = `/scrum-speaking-timer/` (ADR-16) | Nom confirmé par l'orchestrateur |

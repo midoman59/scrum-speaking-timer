@@ -29,7 +29,7 @@
 8. **S-E2-05, durée et temps moyen :** le champ durée est validé (S-E3-01), mais le temps moyen en direct (S-E3-03) n'est pas affiché : il relève du lot 3.
 9. **S-E2-12, bouton « Démarrer la session » :** il navigue vers la route provisoire `/session`. La Session elle-même (états, minuteur) est livrée par les epics E4 et E5.
 10. **S-E2-06, point d'entrée « Nouvelle équipe » [À VALIDER] :** lien sur l'écran de préparation vers `/equipe`. Le libellé et l'emplacement sont à valider par le client.
-11. **Persistance, schéma :** `session` vaut `null` dans `StoredRootV1` jusqu'à l'epic E4. Toute valeur différente de `null` rend la donnée illisible (sauvegardée une fois dans `scrum-timer:v1:backup`).
+11. **Persistance, schéma :** `session` vaut `null` dans `StoredRootV1` jusqu'à l'epic E4. Toute valeur différente de `null` rend la donnée illisible (sauvegardée dans la première case libre des trois emplacements `scrum-timer:v1:backup*`).
 12. **Messages d'erreur :** la table `messages.ts` regroupe tous les codes de validation avec leurs textes exacts du PRD. Les textes sans source (ex. `ALLOCATION_REQUIRED`) suivent EXPERIENCE 3.2.1 et sont à valider.
 13. **Répartition égale, recalcul :** `TeamService.commit` recalcule les temps alloués en répartition égale. Les valeurs saisies par le formulaire sont ignorées dans ce cas (INV-10, ADR-08).
 14. **Infrastructure hors lot :** Docker, GitHub Actions, Lighthouse CI, `check:base-href`, `check:bundle` (lots 4 et suivants) ne sont pas traités, comme demandé.
