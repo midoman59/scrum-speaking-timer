@@ -50,3 +50,43 @@ test('critère 3 : un dist sans URL externe réussit (code 0)', () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// I-3 : les URL sans schéma et les WebSocket sont aussi des appels réseau hors origine (NFR-8).
+test('I-3 : une URL sans schéma (//hôte) dans index.html échoue (code 1)', () => {
+  const dir = makeDist({
+    'index.html': '<script src="//cdn.example.com/lib.js"></script>',
+  });
+  try {
+    const result = run(dir);
+    assert.equal(result.status, 1, result.stdout + result.stderr);
+    assert.match(result.stdout + result.stderr, /\/\/cdn\.example\.com\/lib\.js/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('I-3 : une URL WebSocket dans le code échoue (code 1)', () => {
+  const dir = makeDist({
+    'main.js': 'const socket = new WebSocket("wss://relay.example.com/ws");',
+  });
+  try {
+    const result = run(dir);
+    assert.equal(result.status, 1, result.stdout + result.stderr);
+    assert.match(result.stdout + result.stderr, /wss:\/\/relay\.example\.com\/ws/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('I-3 : les commentaires et chemins relatifs ne sont pas des URL externes (code 0)', () => {
+  const dir = makeDist({
+    'main.js': '// commentaire court\nconst a = "/assets/x.png";\n//# sourceMappingURL=main.js.map\n',
+    'index.html': '<a href="#/equipe">x</a><img src="./icons/a.png">',
+  });
+  try {
+    const result = run(dir);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

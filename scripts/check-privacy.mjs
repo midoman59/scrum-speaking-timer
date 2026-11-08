@@ -22,7 +22,8 @@ const ALLOWED_PREFIXES = [
   'https://angular.dev/errors',
   'https://github.com/angular/angular/',
 ];
-const URL_PATTERN = /https?:\/\/[^\s"'`<>)]+/g;
+// URL avec schéma (http, https, ws, wss) ou sans schéma (//hôte.tld), sans confondre « // » d'un commentaire.
+const URL_PATTERN = /(?:\b(?:https?|wss?):\/\/|(?<![\w:/])\/\/(?=[\w-]+\.[a-z]))[^\s"'`<>)]+/gi;
 
 function walk(dir) {
   return readdirSync(dir).flatMap((name) => {
