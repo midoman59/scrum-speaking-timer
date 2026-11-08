@@ -4,7 +4,7 @@ import { test, expect } from './fixtures';
 test.describe('Confidentialité réseau', () => {
   test('critère 3 : la page d\'accueil s\'affiche sans requête hors origine', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('h1')).toHaveText('Équipe');
+    await expect(page.locator('h1')).toHaveText('Créer votre équipe');
   });
 
   for (const hash of ['#/equipe', '#/preparation', '#/session', '#/bilan']) {
