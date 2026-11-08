@@ -1,7 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { StatusBannerComponent } from './features/shared/status-banner';
-import { PersistenceService, UNREADABLE_DATA_MESSAGE } from './services/persistence.service';
+import {
+  PersistenceService,
+  STORAGE_REFUSED_MESSAGE,
+  UNREADABLE_DATA_MESSAGE,
+} from './services/persistence.service';
 import { TeamService } from './services/team.service';
 
 @Component({
@@ -19,5 +23,12 @@ export class App {
   readonly unreadableDismissed = signal(false);
   readonly showUnreadable = computed(
     () => this.persistence.dataIssue() === 'unreadable' && !this.unreadableDismissed(),
+  );
+
+  readonly storageRefusedMessage = STORAGE_REFUSED_MESSAGE;
+  readonly storageRefusedDismissed = signal(false);
+  /** Bandeau B-1 : tant que le stockage n'est pas sain, la Session continue en mémoire vive (FR-25). */
+  readonly showStorageRefused = computed(
+    () => this.persistence.health() !== 'ok' && !this.storageRefusedDismissed(),
   );
 }

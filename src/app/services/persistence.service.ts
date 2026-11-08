@@ -10,6 +10,10 @@ export type DataIssue = 'none' | 'unreadable';
 export const UNREADABLE_DATA_MESSAGE =
   'Les données enregistrées sont illisibles et ont été ignorées. Vous pouvez importer un fichier de sauvegarde.';
 
+/** Message FR-25 pour le stockage refusé ou plein (bandeau B-1, PRD FR-25). */
+export const STORAGE_REFUSED_MESSAGE =
+  'Vos données ne seront pas conservées après fermeture. Exportez votre équipe pour la sauvegarder.';
+
 /** Lecture et écriture de la racine persistée, avec sauvegarde des données illisibles (ADR-05). */
 @Injectable({ providedIn: 'root' })
 export class PersistenceService {
