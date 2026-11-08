@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { messageFor } from '../../core/domain/messages';
 import { formatMmSs } from '../../core/domain/format';
 import { validateTeam } from '../../core/domain/validation';
@@ -8,6 +8,7 @@ import { TeamService } from '../../services/team.service';
 /** Écran de préparation de Session (E-2, S-E2-12). La garde de route garantit une équipe. */
 @Component({
   selector: 'app-preparation-page',
+  imports: [RouterLink],
   template: `
     <section class="page">
       <h1>Préparer la session</h1>
@@ -40,6 +41,8 @@ import { TeamService } from '../../services/team.service';
             Démarrer la session
           </button>
         </div>
+
+        <p class="new-team"><a routerLink="/equipe">Nouvelle équipe</a></p>
       }
     </section>
   `,

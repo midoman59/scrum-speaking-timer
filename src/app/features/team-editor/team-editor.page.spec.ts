@@ -4,6 +4,7 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import { Result, ok } from '../../core/domain/result';
 import { STORAGE, StoragePort, StorageError } from '../../core/ports/storage.port';
 import { STORAGE_KEY } from '../../core/domain/storage-schema';
+import { seedTeam } from '../../testing/fixtures';
 import { routes } from '../../app.routes';
 import { MemoryStorage, provideMemoryStorage } from '../../testing/memory-storage';
 
@@ -121,6 +122,66 @@ describe('Écran Équipe, création (S-E2-05)', () => {
     add.click();
     harness.fixture.detectChanges();
     expect(document.activeElement).toBe(el(harness, '#member-name'));
+  });
+
+  describe('S-E2-06 : remplacer l\'équipe existante', () => {
+    function fillValidTeam(harness: RouterTestingHarness, name: string): void {
+      type(harness, '#team-name', name);
+      type(harness, '#member-name', 'Camille');
+      pressEnter(harness, '#member-name');
+      type(harness, '#member-name', 'Thomas');
+      pressEnter(harness, '#member-name');
+    }
+
+    function dialogOf(harness: RouterTestingHarness): HTMLElement | null {
+      return harness.routeNativeElement!.querySelector('[role="dialog"]');
+    }
+
+    it('critère 1 : D-1 s\'ouvre avec le texte exact, focus sur « Annuler »', async () => {
+      seedTeam(memory);
+      const harness = await openEditor();
+      fillValidTeam(harness, 'Nouvelle équipe');
+      saveButton(harness).click();
+      harness.fixture.detectChanges();
+
+      const dialog = dialogOf(harness);
+      expect(dialog?.textContent).toContain('Remplacer l\'équipe existante ?');
+      expect(dialog?.textContent).toContain('Cette action supprime l\'équipe actuelle et son réglage.');
+      expect(document.activeElement?.textContent?.trim()).toBe('Annuler');
+    });
+
+    it('critère 2 : « Annuler » ne change rien', async () => {
+      seedTeam(memory);
+      const harness = await openEditor();
+      fillValidTeam(harness, 'Nouvelle équipe');
+      saveButton(harness).click();
+      harness.fixture.detectChanges();
+      const cancel = Array.from(dialogOf(harness)!.querySelectorAll('button')).find(
+        (b) => b.textContent?.trim() === 'Annuler',
+      ) as HTMLButtonElement;
+      cancel.click();
+      harness.fixture.detectChanges();
+
+      expect(dialogOf(harness)).toBeNull();
+      expect(TestBed.inject(Router).url).toBe('/equipe');
+      expect(JSON.parse(memory.data.get(STORAGE_KEY) ?? '{}').team.name).toBe('Équipe Alpha');
+    });
+
+    it('critère 3 : « Remplacer » remplace l\'ancienne équipe et ouvre /preparation', async () => {
+      seedTeam(memory);
+      const harness = await openEditor();
+      fillValidTeam(harness, 'Nouvelle équipe');
+      saveButton(harness).click();
+      harness.fixture.detectChanges();
+      const replace = Array.from(dialogOf(harness)!.querySelectorAll('button')).find(
+        (b) => b.textContent?.trim() === 'Remplacer',
+      ) as HTMLButtonElement;
+      replace.click();
+      await harness.fixture.whenStable();
+
+      expect(TestBed.inject(Router).url).toBe('/preparation');
+      expect(JSON.parse(memory.data.get(STORAGE_KEY) ?? '{}').team.name).toBe('Nouvelle équipe');
+    });
   });
 
   it('critère 5 : Entrée dans le champ d\'ajout ajoute le Membre en fin de liste et garde le focus', async () => {

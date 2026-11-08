@@ -41,6 +41,15 @@ describe('Écran de préparation (S-E2-12)', () => {
     expect(TestBed.inject(Router).url).toBe('/equipe');
   });
 
+  it('S-E2-06 critère 4 : un point d\'entrée « Nouvelle équipe » mène à l\'écran Équipe', async () => {
+    seedTeam(memory);
+    const harness = await RouterTestingHarness.create('/preparation');
+    const link = Array.from(harness.routeNativeElement!.querySelectorAll('a')).find(
+      (a) => a.textContent?.trim() === 'Nouvelle équipe',
+    );
+    expect(link?.getAttribute('href')).toBe('#/equipe');
+  });
+
   it('critère 3 : équipe invalide, bouton désactivé et motif affiché sous le bouton', async () => {
     seedTeam(memory);
     const service = TestBed.inject(TeamService);

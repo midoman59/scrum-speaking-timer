@@ -13,13 +13,14 @@ import {
 } from '../../core/domain/validation';
 import { newId } from '../../services/ids';
 import { TeamService } from '../../services/team.service';
+import { ConfirmDialogComponent } from '../shared/confirm-dialog';
 
 const MIN_MEMBERS = 2;
 
 /** Écran Équipe, création (E-1, S-E2-05). Formulaire réactif, un validateur par champ (ADR-07). */
 @Component({
   selector: 'app-team-editor-page',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ConfirmDialogComponent],
   template: `
     <section class="page">
       <h1>Créer votre équipe</h1>
@@ -105,6 +106,17 @@ const MIN_MEMBERS = 2;
           <p class="error" role="alert">{{ text }}</p>
         }
       </form>
+
+      @if (replaceOpen()) {
+        <app-confirm-dialog
+          title="Remplacer l'équipe existante ?"
+          message="Cette action supprime l'équipe actuelle et son réglage."
+          confirmLabel="Remplacer"
+          destructive
+          (confirmed)="replaceOpen.set(false); save()"
+          (cancelled)="replaceOpen.set(false)"
+        />
+      }
     </section>
   `,
   styles: `
@@ -150,6 +162,7 @@ export class TeamEditorPage {
   readonly atLimit = computed(() => this.members().length >= MAX_MEMBERS);
   readonly submitted = signal(false);
   readonly saveErrors = signal<string[]>([]);
+  readonly replaceOpen = signal(false);
 
   readonly form = new FormGroup({
     name: new FormControl('', {
@@ -232,6 +245,15 @@ export class TeamEditorPage {
       this.focusFirstInvalid();
       return;
     }
+    // S-E2-06 : une équipe existante n'est remplacée qu'après confirmation (D-1).
+    if (this.teams.hasTeam()) {
+      this.replaceOpen.set(true);
+      return;
+    }
+    this.save();
+  }
+
+  save(): void {
     const duration = validateDurationMinutes(this.form.controls.duration.value);
     if (!duration.ok) return;
 
