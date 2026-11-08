@@ -66,6 +66,11 @@ import { TeamService } from '../../services/team.service';
     .time { font-variant-numeric: tabular-nums; font-size: var(--text-sm); }
     .help { margin: 0; color: var(--color-text-muted); font-size: var(--text-sm); }
     .actions { display: flex; justify-content: flex-end; }
+    .new-team a {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--target-min);
+    }
   `,
 })
 export class PreparationPage {

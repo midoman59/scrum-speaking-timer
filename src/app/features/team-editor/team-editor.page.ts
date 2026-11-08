@@ -120,8 +120,8 @@ const MIN_MEMBERS = 2;
     </section>
   `,
   styles: `
-    .page { display: grid; gap: var(--space-4); max-width: 560px; }
-    .field { display: grid; gap: var(--space-2); }
+    .page { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); max-width: 560px; }
+    .field { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
     label { font-weight: 600; font-size: var(--text-sm); }
     input {
       min-height: var(--target-min);
@@ -134,7 +134,7 @@ const MIN_MEMBERS = 2;
     }
     input[aria-invalid='true'] { border: 2px solid var(--color-danger); }
     .row { display: flex; gap: var(--space-2); }
-    .row input { flex: 1; }
+    .row input { flex: 1; min-width: 0; }
     .member-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
     .member-list li {
       display: flex;
