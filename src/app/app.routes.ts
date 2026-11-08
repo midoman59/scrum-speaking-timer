@@ -1,12 +1,14 @@
 import { Routes } from '@angular/router';
-import { TeamSetupComponent } from './pages/team-setup.component';
-import { SessionComponent } from './pages/session.component';
-import { SummaryComponent } from './pages/summary.component';
+import { TeamEditorPage } from './features/team-editor/team-editor.page';
+import { PreparationPage } from './features/preparation/preparation.page';
+import { SessionPage } from './features/session/session.page';
+import { SummaryPage } from './features/summary/summary.page';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'equipe' },
-  { path: 'equipe', component: TeamSetupComponent, title: 'Équipe' },
-  { path: 'session', component: SessionComponent, title: 'Session' },
-  { path: 'bilan', component: SummaryComponent, title: 'Bilan' },
+  { path: 'equipe', component: TeamEditorPage, title: 'Équipe' },
+  { path: 'preparation', component: PreparationPage, title: 'Préparer la session' },
+  { path: 'session', component: SessionPage, title: 'Session' },
+  { path: 'bilan', component: SummaryPage, title: 'Bilan' },
   { path: '**', redirectTo: 'equipe' },
 ];

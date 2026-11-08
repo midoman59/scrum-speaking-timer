@@ -1,39 +1,11 @@
-:host {
-  display: block;
-  min-height: 100vh;
-  background: var(--bg, #f8fafc);
-  color: var(--fg, #0f172a);
-}
-
-.topbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
-  background: #1e3a8a;
-  color: #fff;
-}
-
-nav {
-  display: flex;
-  gap: .75rem;
-}
-
-nav a {
-  color: #fff;
-  text-decoration: none;
-  padding: .25rem .5rem;
-  border-radius: 6px;
-}
-
-nav a.active {
-  background: rgba(255, 255, 255, .2);
-}
-
-main {
-  max-width: 640px;
+.app-main {
+  max-width: 720px;
   margin: 0 auto;
-  padding: 1rem 16px;
+  padding: var(--space-4);
+}
+
+@media (min-width: 600px) {
+  .app-main {
+    padding: var(--space-5);
+  }
 }
