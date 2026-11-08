@@ -6,7 +6,9 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "check:privacy": "node scripts/check-privacy.mjs",
+    "test:scripts": "node --test \"scripts/tests/*.test.mjs\""
   },
   "prettier": {
     "printWidth": 100,
