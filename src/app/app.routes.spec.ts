@@ -1,15 +1,19 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter, withHashLocation } from '@angular/router';
 import { STORAGE } from './core/ports/storage.port';
-import { provideMemoryStorage } from './testing/memory-storage';
+import { MemoryStorage, provideMemoryStorage } from './testing/memory-storage';
+import { seedTeam } from './testing/fixtures';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { routes } from './app.routes';
 
 // S-E1-03 : routes en hash et pages provisoires.
 describe('Routes en hash (S-E1-03)', () => {
+  let memory: MemoryStorage;
+
   beforeEach(() => {
+    memory = new MemoryStorage();
     TestBed.configureTestingModule({
-      providers: [provideRouter(routes, withHashLocation()), provideMemoryStorage()],
+      providers: [provideRouter(routes, withHashLocation()), provideMemoryStorage(memory)],
     });
   });
 
@@ -22,6 +26,7 @@ describe('Routes en hash (S-E1-03)', () => {
 
   for (const [path, title] of cases) {
     it(`critère 2 : ${path} affiche le titre h1 « ${title} »`, async () => {
+      if (path === '/preparation') seedTeam(memory);
       const harness = await RouterTestingHarness.create(path);
       const h1 = harness.routeNativeElement!.querySelector('h1');
       expect(h1?.textContent?.trim()).toBe(title);
