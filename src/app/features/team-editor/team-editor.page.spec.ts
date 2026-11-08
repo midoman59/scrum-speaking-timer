@@ -160,6 +160,23 @@ describe('Écran Équipe, création (S-E2-05)', () => {
       );
       expect(document.activeElement).toBe(el(harness, '#member-name'));
     });
+
+    it('N-2 : nom vide et prénom invalide, la soumission place le focus sur le nom (première erreur)', async () => {
+      const harness = await openEditor();
+      type(harness, '#member-name', 'Camille');
+      pressEnter(harness, '#member-name');
+      type(harness, '#member-name', 'Thomas');
+      pressEnter(harness, '#member-name');
+      type(harness, '#member-name', 'Jean3');
+      // Soumission du formulaire (le bouton est désactivé tant que le nom est vide).
+      el<HTMLFormElement>(harness, 'form').dispatchEvent(new Event('submit', { cancelable: true }));
+      await harness.fixture.whenStable();
+      harness.fixture.detectChanges();
+
+      expect(memory.data.get(STORAGE_KEY)).toBeUndefined();
+      expect(harness.routeNativeElement!.textContent).toContain('Donnez un nom à votre équipe.');
+      expect(document.activeElement).toBe(el(harness, '#team-name'));
+    });
   });
 
   describe('S-E2-06 : remplacer l\'équipe existante', () => {

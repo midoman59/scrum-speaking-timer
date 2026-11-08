@@ -243,6 +243,11 @@ export class TeamEditorPage {
 
   onSubmit(): void {
     this.submitted.set(true);
+    // N-2 : la première erreur reçoit le focus (PRD section 6) : nom et durée d'abord, puis le champ d'ajout.
+    if (this.form.controls.name.invalid || this.form.controls.duration.invalid) {
+      this.focusFirstInvalid();
+      return;
+    }
     // I-5 : un prénom saisi mais non ajouté n'est pas perdu : il est ajouté, ou bloque l'enregistrement.
     if (this.form.controls.member.value.trim() !== '' && !this.addMember()) return;
     if (!this.canSave()) {
