@@ -82,6 +82,47 @@ describe('Écran Équipe, création (S-E2-05)', () => {
     expect(stored.team.members.map((m: { allocatedSec: number }) => m.allocatedSec)).toEqual([450, 450]);
   });
 
+  it('S-E2-07 critère 1 : au 15e Membre, champ et « Ajouter » désactivés avec le message de limite', async () => {
+    const harness = await openEditor();
+    for (let i = 0; i < 15; i++) {
+      const name = `Ma${String.fromCharCode(65 + i)}`.replace(/[^A-Za-z]/g, 'x');
+      type(harness, '#member-name', name);
+      pressEnter(harness, '#member-name');
+    }
+    expect(el<HTMLInputElement>(harness, '#member-name').disabled).toBeTrue();
+    const add = Array.from(harness.routeNativeElement!.querySelectorAll('button')).find(
+      (b) => b.textContent?.trim() === 'Ajouter',
+    ) as HTMLButtonElement;
+    expect(add.disabled).toBeTrue();
+    expect(harness.routeNativeElement!.textContent).toContain('Une équipe ne peut pas dépasser 15 membres.');
+  });
+
+  it('S-E2-07 critère 2 : prénom invalide, erreur liée par aria-describedby, prénom gardé, membre non ajouté', async () => {
+    const harness = await openEditor();
+    type(harness, '#member-name', 'Jean3');
+    pressEnter(harness, '#member-name');
+
+    const input = el<HTMLInputElement>(harness, '#member-name');
+    expect(input.getAttribute('aria-describedby')).toBe('member-name-error');
+    expect(el(harness, '#member-name-error')?.textContent).toContain(
+      'Un prénom ne peut contenir que des lettres, espaces, traits d\'union et apostrophes.',
+    );
+    expect(input.value).toBe('Jean3');
+    expect(harness.routeNativeElement!.querySelectorAll('.member-list li').length).toBe(0);
+  });
+
+  it('S-E2-07 critère 3 : après une erreur d\'ajout, le champ reçoit le focus', async () => {
+    const harness = await openEditor();
+    type(harness, '#member-name', '');
+    el<HTMLButtonElement>(harness, '#team-name').focus();
+    const add = Array.from(harness.routeNativeElement!.querySelectorAll('button')).find(
+      (b) => b.textContent?.trim() === 'Ajouter',
+    ) as HTMLButtonElement;
+    add.click();
+    harness.fixture.detectChanges();
+    expect(document.activeElement).toBe(el(harness, '#member-name'));
+  });
+
   it('critère 5 : Entrée dans le champ d\'ajout ajoute le Membre en fin de liste et garde le focus', async () => {
     const harness = await openEditor();
     type(harness, '#member-name', 'Camille');

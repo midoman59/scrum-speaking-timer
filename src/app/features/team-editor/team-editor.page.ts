@@ -1,9 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ValidationError } from '../../core/domain/errors';
 import { Member } from '../../core/domain/model';
-import { normalizeMemberName } from '../../core/domain/normalize';
+import { addMemberToDraft, MAX_MEMBERS } from '../../core/domain/draft';
 import { messageFor } from '../../core/domain/messages';
 import {
   validateDurationForMembers,
@@ -64,6 +64,9 @@ const MIN_MEMBERS = 2;
             </li>
           }
         </ol>
+        @if (atLimit()) {
+          <p id="limit-error" class="error">{{ limitText }}</p>
+        }
 
         <div class="field">
           <label for="member-name">Prénom du membre</label>
@@ -77,7 +80,7 @@ const MIN_MEMBERS = 2;
               [attr.aria-invalid]="showError('member') ? 'true' : null"
               [attr.aria-describedby]="showError('member') ? 'member-name-error' : null"
             />
-            <button type="button" class="ghost" (click)="addMember()">Ajouter</button>
+            <button type="button" class="ghost" [disabled]="atLimit()" (click)="addMember()">Ajouter</button>
           </div>
           @if (showError('member')) {
             <p id="member-name-error" class="error">{{ errorText('member') }}</p>
@@ -141,7 +144,10 @@ export class TeamEditorPage {
   private readonly teams = inject(TeamService);
   private readonly router = inject(Router);
 
+  readonly limitText = messageFor('MEMBER_COUNT_MAX');
+
   readonly members = signal<Member[]>([]);
+  readonly atLimit = computed(() => this.members().length >= MAX_MEMBERS);
   readonly submitted = signal(false);
   readonly saveErrors = signal<string[]>([]);
 
@@ -189,16 +195,35 @@ export class TeamEditorPage {
   addMember(): void {
     const control = this.form.controls.member;
     control.markAsTouched();
-    if (control.invalid) {
+    const result = addMemberToDraft(
+      {
+        name: this.form.controls.name.value,
+        durationSec: 900,
+        allocationMode: 'equal',
+        members: this.members(),
+      },
+      control.value,
+      newId(),
+    );
+    if (!result.ok) {
       this.focusField('member-name');
       return;
     }
-    const name = normalizeMemberName(control.value);
-    this.members.update((list) => [...list, { id: newId(), name, allocatedSec: 0 }]);
+    this.members.set([...result.value.members]);
+    this.syncMemberLimit();
     control.setValue('');
     control.markAsUntouched();
     this.form.controls.duration.updateValueAndValidity();
     this.focusField('member-name');
+  }
+
+  /** Au 15e Membre, la saisie est désactivée (S-E2-07). */
+  private syncMemberLimit(): void {
+    if (this.atLimit()) {
+      this.form.controls.member.disable({ emitEvent: false });
+    } else {
+      this.form.controls.member.enable({ emitEvent: false });
+    }
   }
 
   onSubmit(): void {
